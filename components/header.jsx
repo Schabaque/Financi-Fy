@@ -1,13 +1,8 @@
-'use client';
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { Button } from './ui/button';
-import {
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from '@clerk/nextjs';
+"use client";
+import React, { useState,useEffect } from "react";
+import Link from "next/link";
+import { Button } from "./ui/button";
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import {
   Menu,
   X,
@@ -18,18 +13,29 @@ import {
   Bell,
   LayoutDashboard,
   Plus,
-} from 'lucide-react';
-
+} from "lucide-react";
+import { checkUser } from "@/lib/checkUser";
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navItems = [
-    { name: 'Dashboard', href: '/', icon: BarChart3 },
-    { name: 'Portfolio', href: '/portfolio', icon: TrendingUp },
-    { name: 'Wallet', href: '/wallet', icon: Wallet },
-    { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+    { name: "Dashboard", href: "/", icon: BarChart3 },
+    { name: "Portfolio", href: "/portfolio", icon: TrendingUp },
+    { name: "Wallet", href: "/wallet", icon: Wallet },
+    { name: "Analytics", href: "/analytics", icon: BarChart3 },
   ];
 
+useEffect(() => {
+  const runCheck = async () => {
+    try {
+      await checkUser(); // Runs once when user is signed in
+    } catch (err) {
+      console.error("User check failed:", err);
+    }
+  };
+
+  runCheck();
+}, []);
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-md border-b border-yellow-500/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -72,15 +78,23 @@ const Header = () => {
             <SignedIn>
               <div className="hidden lg:flex items-center space-x-2">
                 <Link href="/dashboard">
-                  <Button variant="outline" className="border-gray-600 text-gray-300 hover:text-white hover:bg-yellow-500/10 hover:border-yellow-500/50">
+                  <Button
+                    variant="outline"
+                    className="border-gray-600 text-gray-300 hover:text-white hover:bg-yellow-500/10 hover:border-yellow-500/50"
+                  >
                     <LayoutDashboard size={18} />
                     <span className="hidden xl:inline ml-2">Dashboard</span>
                   </Button>
                 </Link>
                 <Link href="/transaction/create">
-                  <Button variant="outline" className="border-gray-600 text-gray-300 hover:text-white hover:bg-yellow-500/10 hover:border-yellow-500/50">
+                  <Button
+                    variant="outline"
+                    className="border-gray-600 text-gray-300 hover:text-white hover:bg-yellow-500/10 hover:border-yellow-500/50"
+                  >
                     <Plus size={18} />
-                    <span className="hidden xl:inline ml-2">Add Transaction</span>
+                    <span className="hidden xl:inline ml-2">
+                      Add Transaction
+                    </span>
                   </Button>
                 </Link>
               </div>
@@ -116,15 +130,20 @@ const Header = () => {
               <SignedIn>
                 <div className="flex items-center space-x-3">
                   <div className="hidden sm:block text-right">
-                    <div className="text-sm text-white font-medium">Welcome back</div>
-                    <div className="text-xs text-yellow-400">Portfolio Active</div>
+                    <div className="text-sm text-white font-medium">
+                      Welcome back
+                    </div>
+                    <div className="text-xs text-yellow-400">
+                      Portfolio Active
+                    </div>
                   </div>
-                  <UserButton 
+                  <UserButton
                     afterSignOutUrl="/"
                     appearance={{
                       elements: {
-                        avatarBox: "w-10 h-10 ring-2 ring-yellow-500/30 hover:ring-yellow-500/60 transition-all"
-                      }
+                        avatarBox:
+                          "w-10 h-10 ring-2 ring-yellow-500/30 hover:ring-yellow-500/60 transition-all",
+                      },
                     }}
                   />
                 </div>
@@ -136,7 +155,11 @@ const Header = () => {
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="md:hidden p-2 text-gray-400 hover:text-white hover:bg-yellow-500/10 rounded-lg transition-all duration-200"
             >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
             </button>
           </div>
         </div>
@@ -165,15 +188,19 @@ const Header = () => {
             <SignedIn>
               <div className="pt-2 space-y-2">
                 <Link href="/dashboard">
-                  <div className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-yellow-500/10 transition-all duration-200"
-                       onClick={() => setIsMenuOpen(false)}>
+                  <div
+                    className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-yellow-500/10 transition-all duration-200"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
                     <LayoutDashboard className="w-5 h-5 text-yellow-400" />
                     <span className="font-medium">Dashboard</span>
                   </div>
                 </Link>
                 <Link href="/transaction/create">
-                  <div className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-yellow-500/10 transition-all duration-200"
-                       onClick={() => setIsMenuOpen(false)}>
+                  <div
+                    className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-yellow-500/10 transition-all duration-200"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
                     <Plus className="w-5 h-5 text-yellow-400" />
                     <span className="font-medium">Add Transaction</span>
                   </div>
@@ -196,8 +223,12 @@ const Header = () => {
               <SignedIn>
                 <div className="flex items-center justify-between px-4 py-2">
                   <div>
-                    <div className="text-sm text-white font-medium">Account Active</div>
-                    <div className="text-xs text-yellow-400">Monitoring Portfolio</div>
+                    <div className="text-sm text-white font-medium">
+                      Account Active
+                    </div>
+                    <div className="text-xs text-yellow-400">
+                      Monitoring Portfolio
+                    </div>
                   </div>
                   <UserButton afterSignOutUrl="/" />
                 </div>

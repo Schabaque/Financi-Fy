@@ -1,5 +1,6 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
+import CheckUserServer from "@/components/CheckUserServer";
 import Header from "@/components/header";
 import {
   ClerkProvider,
@@ -9,6 +10,7 @@ import {
   SignedOut,
   UserButton,
 } from '@clerk/nextjs'
+import { checkUser } from "@/lib/checkUser";
 const inter = Inter({
   subsets: ["latin"],
 });
@@ -18,25 +20,31 @@ export const metadata = {
   description: "One stop shop for all your financial needs",
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+   await checkUser();
   return (
-     <ClerkProvider>
     <html lang="en">
       <body className={`${inter.className}`}>
-        {/* header (optional) */}
-        <Header/>
-        {children}
-        {/* footer */}
-        <footer className="bg-blue-50 py-12">
+        <ClerkProvider>
+          {/* Run checkUser to store user on login */}
+          <CheckUserServer />
 
-          <div className="container mx-auto px-4 text-center text-gray-600">
-            <p>
-              Made with <span className="text-pink-500">♥</span> by 
-            </p>
-          </div>
-        </footer>
+          {/* Header */}
+          <Header />
+
+          {/* Main content */}
+          {children}
+
+          {/* Footer */}
+          <footer className="bg-blue-50 py-12">
+            <div className="container mx-auto px-4 text-center text-gray-600">
+              <p>
+                Made with <span className="text-pink-500">♥</span> by 
+              </p>
+            </div>
+          </footer>
+        </ClerkProvider>
       </body>
     </html>
-    </ClerkProvider>
   );
 }
