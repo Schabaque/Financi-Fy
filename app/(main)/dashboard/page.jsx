@@ -4,21 +4,37 @@ import { Plus } from "lucide-react";
 import CreateAccountDrawer from "@/components/create-account-drawer";
 import { getUserAccounts } from "@/actions/dashboard";
 import AccountCard from "./_components/account-card";
- 
+import { getCurrentBudget } from "@/actions/budget";
+import { BudgetProgress } from "./_components/budget-progress";
 
 export default async function DashboardPage() {
-  const accounts= await getUserAccounts();
-  console.log(accounts);
+  const accounts = await getUserAccounts();
+  const defaultAccount = accounts?.find((account) => account.isDefault);
+
+  let budgetData = null;
+  if (defaultAccount) {
+    budgetData = await getCurrentBudget(defaultAccount.id);
+  }
+
   return (
-    <div className="min-h-screen  bg-black/95 text-white">
+    <div className="min-h-screen bg-black/95 text-white px-4 md:px-8 pt-6">
       {/* Header Section */}
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-yellow-400 tracking-tight mb-1">
           Dashboard
         </h1>
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-gray-400 mb-4">
           Monitor your financial accounts and budget in one place.
         </p>
+
+        {budgetData && (
+          <div className="w-full">
+            <BudgetProgress
+              initialBudget={budgetData?.budget}
+              currentExpenses={budgetData?.currentExpenses || 0}
+            />
+          </div>
+        )}
       </div>
 
       {/* Account Cards Grid */}
@@ -35,12 +51,9 @@ export default async function DashboardPage() {
           </Card>
         </CreateAccountDrawer>
 
-        {/* Future dynamic account cards will go here */}
-        {/* accounts.map(account => (
-            <AccountCard key={account.id} data={account} />
-        )) */}
-       {accounts.length > 0 &&
-          accounts?.map((account) => (
+        {/* Dynamic Account Cards */}
+        {accounts.length > 0 &&
+          accounts.map((account) => (
             <AccountCard key={account.id} account={account} />
           ))}
       </div>
