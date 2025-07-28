@@ -1,6 +1,8 @@
 import { inngest } from "./client";
 import { db } from "@/lib/prisma";
- 
+import { sendEmail } from "@/actions/send-email";
+import EmailTemplate from "@/emails/template";
+
 export const checkBudgetAlerts = inngest.createFunction(
   { name: "Check Budget Alerts" },
   { cron: "0 */6 * * *" }, // Every 6 hours
@@ -11,9 +13,7 @@ export const checkBudgetAlerts = inngest.createFunction(
           user: {
             include: {
               accounts: {
-                where: {
-                  isDefault: true,
-                },
+                where: { isDefault: true },
               },
             },
           },
@@ -57,11 +57,32 @@ export const checkBudgetAlerts = inngest.createFunction(
             isNewMonth(new Date(budget.lastAlertSent), new Date()));
 
         if (shouldUpdate) {
-          console.log(`✅ Updating lastAlertSent for budget ${budget.id}`);
+          try {
+            await sendEmail({
+              to: budget.user.email,
+              subject: `⚠️ Budget Alert for ${defaultAccount.name}`,
+              react: EmailTemplate({
+                userName: budget.user.name,
+                type: "budget-alert",
+                data: {
+                  percentageUsed,
+                  budgetAmount,
+                  totalExpenses,
+                  accountName: defaultAccount.name,
+                },
+              }),
+            });
+            console.log(`📧 Email sent to ${budget.user.email}`);
+          } catch (err) {
+            console.error(`❌ Failed to send email for budget ${budget.id}`, err);
+          }
+
           await db.budget.update({
             where: { id: budget.id },
             data: { lastAlertSent: new Date() },
           });
+
+          console.log(`✅ Updated lastAlertSent for budget ${budget.id}`);
         } else {
           console.log(`ℹ️ No update needed for budget ${budget.id}`);
         }
@@ -70,7 +91,6 @@ export const checkBudgetAlerts = inngest.createFunction(
   }
 );
 
-// Utility: New month check
 function isNewMonth(lastAlertDate, currentDate) {
   return (
     lastAlertDate.getMonth() !== currentDate.getMonth() ||

@@ -120,3 +120,12 @@
     @apply bg-background text-foreground;
   }
 }
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 1rem;
+  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.2);
+}
+
