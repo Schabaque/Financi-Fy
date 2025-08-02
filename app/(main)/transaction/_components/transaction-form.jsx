@@ -8,7 +8,7 @@ import { format } from "date-fns";
 import { useRouter, useSearchParams } from "next/navigation";
 import useFetch from "@/hooks/use-Fetch";
 import { toast } from "sonner";
-
+import { ReceiptScanner } from "./recipt-scanner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -92,7 +92,19 @@ export default function AddTransactionForm({
       transactionFn(formData);
     }
   };
-
+  const handleScanComplete = (scannedData) => {
+    if (scannedData) {
+      setValue("amount", scannedData.amount.toString());
+      setValue("date", new Date(scannedData.date));
+      if (scannedData.description) {
+        setValue("description", scannedData.description);
+      }
+      if (scannedData.category) {
+        setValue("category", scannedData.category);
+      }
+      toast.success("Receipt scanned successfully");
+    }
+  };
   useEffect(() => {
     if (transactionResult?.success && !transactionLoading) {
       toast.success(
@@ -118,6 +130,8 @@ export default function AddTransactionForm({
       onSubmit={handleSubmit(onSubmit)}
       className="space-y-6 text-yellow-400"
     >
+         {!editMode && <ReceiptScanner onScanComplete={handleScanComplete} />}
+
       {/* Type */}
       <div className="space-y-2">
         <label className="text-sm font-medium">Type</label>
