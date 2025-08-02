@@ -9,8 +9,10 @@ import {
   SignedIn,
   SignedOut,
   UserButton,
-} from '@clerk/nextjs'
+} from '@clerk/nextjs';
 import { checkUser } from "@/lib/checkUser";
+import { Toaster } from "sonner"; // ✅ Add this
+
 const inter = Inter({
   subsets: ["latin"],
 });
@@ -21,7 +23,8 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-   await checkUser();
+  await checkUser();
+
   return (
     <html lang="en">
       <body className={`${inter.className}`}>
@@ -44,6 +47,14 @@ export default async function RootLayout({ children }) {
             </div>
           </footer>
         </ClerkProvider>
+
+        {/* ✅ Add Toaster outside ClerkProvider */}
+        <Toaster
+          richColors
+          theme="dark"
+          position="top-center"
+          duration={3000}
+        />
       </body>
     </html>
   );
